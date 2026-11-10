@@ -90,12 +90,13 @@ export function validateAppData(raw: unknown): { ok: true; data: AppData } | { o
       return { ok: false, error: "Benchmark invalide dans le fichier (id, name, currentPrice, prices requis)." };
     }
   }
-  return {
-    ok: true,
-    data: {
-      purchases: d.purchases as AppData["purchases"],
-      providers: d.providers as AppData["providers"],
-      benchmarks: d.benchmarks as AppData["benchmarks"],
-    },
+  const data: AppData = {
+    purchases: d.purchases as AppData["purchases"],
+    providers: d.providers as AppData["providers"],
+    benchmarks: d.benchmarks as AppData["benchmarks"],
   };
+  if (typeof d.lastPriceUpdate === "string") {
+    data.lastPriceUpdate = d.lastPriceUpdate;
+  }
+  return { ok: true, data };
 }

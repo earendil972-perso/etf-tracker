@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import KpiCards from "./components/KpiCards";
-import PricesPanel from "./components/PricesPanel";
+import PricesPanel, { type PriceStatus } from "./components/PricesPanel";
 import PnlSummary from "./tabs/PnlSummary";
 import ShouldHaveBought from "./tabs/ShouldHaveBought";
 import BenchmarksTab from "./tabs/Benchmarks";
@@ -8,6 +8,7 @@ import BuyPriceTimeline from "./tabs/BuyPriceTimeline";
 import PurchaseLog from "./tabs/PurchaseLog";
 import { Button, Card, Input, Label } from "./components/ui";
 import { backupFileName, currentMonth, uid, validateAppData } from "./lib/format";
+import { extractIsin, fetchEtfPrice } from "./lib/prices";
 import { loadInitial, useAutoSave } from "./lib/storage";
 import { sampleData } from "./lib/sampleData";
 import { purchasePnl } from "./lib/calc";
@@ -29,6 +30,8 @@ export default function App() {
   const [tab, setTab] = useState<TabId>("summary");
   const [importError, setImportError] = useState<string | null>(null);
   const [newProvider, setNewProvider] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [priceStatus, setPriceStatus] = useState<PriceStatus | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { purchases, providers, benchmarks } = data;
@@ -49,6 +52,40 @@ export default function App() {
         ? prev
         : [...prev, { name: p.provider, currentPrice: p.buyPrice }]
     );
+  }
+
+  async function refreshPrices() {
+    if (refreshing || providers.length === 0) return;
+    setRefreshing(true);
+    setPriceStatus(null);
+    const ok: PriceStatus["ok"] = [];
+    const failed: PriceStatus["failed"] = [];
+    for (const pr of providers) {
+      try {
+        const q = await fetchEtfPrice(pr.name);
+        ok.push({ name: pr.name, price: Number(q.price.toFixed(2)), ticker: q.ticker, exchange: q.exchange });
+      } catch (e) {
+        failed.push({ name: pr.name, error: e instanceof Error ? e.message : "Échec" });
+      }
+    }
+    const updated = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    setPriceStatus({ updated, ok, failed });
+    if (ok.length > 0) {
+      const isinOf = (name: string) => extractIsin(name);
+      setData((d) => ({
+        ...d,
+        lastPriceUpdate: new Date().toISOString(),
+        providers: d.providers.map((p) => {
+          const hit = ok.find((o) => o.name === p.name);
+          return hit ? { ...p, currentPrice: hit.price } : p;
+        }),
+        benchmarks: d.benchmarks.map((b) => {
+          const hit = ok.find((o) => isinOf(o.name) && isinOf(o.name) === isinOf(b.name));
+          return hit ? { ...b, currentPrice: hit.price } : b;
+        }),
+      }));
+    }
+    setRefreshing(false);
   }
 
   function exportData() {
@@ -140,6 +177,9 @@ export default function App() {
 
         <PricesPanel
           providers={providers}
+          refreshing={refreshing}
+          status={priceStatus}
+          onRefresh={refreshPrices}
           onPriceChange={(name, price) =>
             setProviders((prev) => prev.map((p) => (p.name === name ? { ...p, currentPrice: price } : p)))
           }

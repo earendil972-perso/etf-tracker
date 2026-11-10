@@ -22,4 +22,5 @@ export interface AppData {
   purchases: Purchase[];
   providers: Provider[];
   benchmarks: Benchmark[];
+  lastPriceUpdate?: string;
 }
