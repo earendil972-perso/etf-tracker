@@ -62,7 +62,7 @@ export default function PnlSummary({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-700 text-left text-xs text-slate-400">
-                <th className="py-2 pr-3">Fournisseur</th>
+                <th className="py-2 pr-3">ETF</th>
                 <th className="py-2 pr-3">Mois</th>
                 <th className="py-2 pr-3 text-right">Qté</th>
                 <th className="py-2 pr-3 text-right">Prix d'achat</th>

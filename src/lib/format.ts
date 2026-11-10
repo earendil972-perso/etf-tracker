@@ -81,7 +81,7 @@ export function validateAppData(raw: unknown): { ok: true; data: AppData } | { o
   for (const p of d.providers) {
     const o = p as Record<string, unknown>;
     if (typeof o.name !== "string" || typeof o.currentPrice !== "number") {
-      return { ok: false, error: "Fournisseur invalide dans le fichier (name, currentPrice requis)." };
+      return { ok: false, error: "ETF invalide dans le fichier (name, currentPrice requis)." };
     }
   }
   for (const b of d.benchmarks) {

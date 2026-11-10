@@ -105,6 +105,17 @@ export default function App() {
             >
               Réinitialiser l'exemple
             </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (confirm("Supprimer TOUTES les données (achats, ETF, benchmarks) ? Cette action est irréversible.")) {
+                  setData({ purchases: [], providers: [], benchmarks: [] });
+                  setImportError(null);
+                }
+              }}
+            >
+              Tout supprimer
+            </Button>
             <input
               ref={fileRef}
               type="file"
@@ -137,11 +148,11 @@ export default function App() {
         <Card>
           <div className="flex flex-wrap items-end gap-3 border-b border-slate-700 p-4">
             <div className="flex flex-col gap-1">
-              <Label>Nouveau fournisseur</Label>
+              <Label>Nouvel ETF</Label>
               <Input
                 value={newProvider}
                 onChange={(e) => setNewProvider(e.target.value)}
-                placeholder="ex. Bourse Direct"
+                placeholder="ex. Amundi MSCI World (LU1781541179)"
                 className="w-52"
               />
             </div>
@@ -156,7 +167,7 @@ export default function App() {
                 setNewProvider("");
               }}
             >
-              Ajouter le fournisseur
+              Ajouter l'ETF
             </Button>
           </div>
         </Card>

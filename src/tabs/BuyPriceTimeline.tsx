@@ -28,7 +28,7 @@ export default function BuyPriceTimeline({
     <Card>
       <CardHeader
         title="Évolution du prix d'achat"
-        subtitle="Prix unitaire d'achat par mois, une ligne par fournisseur (les mois sans achat sont reliés)."
+        subtitle="Prix unitaire d'achat par mois, une ligne par ETF (les mois sans achat sont reliés)."
       />
       <CardBody>
         {data.length === 0 ? (

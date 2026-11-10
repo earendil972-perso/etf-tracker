@@ -12,7 +12,7 @@ export default function PricesPanel({
     <Card>
       <CardHeader
         title="Prix du jour"
-        subtitle="Mettez à jour le prix actuel de chaque fournisseur — les P&L se recalculent instantanément."
+        subtitle="Mettez à jour le prix actuel de chaque ETF — les P&L se recalculent instantanément."
       />
       <CardBody>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -34,7 +34,7 @@ export default function PricesPanel({
             </div>
           ))}
           {providers.length === 0 && (
-            <p className="text-sm text-slate-400">Aucun fournisseur. Ajoutez un achat pour créer un fournisseur.</p>
+            <p className="text-sm text-slate-400">Aucun ETF. Ajoutez un achat ou un nouvel ETF ci-dessous.</p>
           )}
         </div>
       </CardBody>

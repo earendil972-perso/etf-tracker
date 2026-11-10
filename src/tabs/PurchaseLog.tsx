@@ -25,7 +25,7 @@ export default function PurchaseLog({
     const price = Number(buyPrice);
     const prov = provider || providers[0]?.name;
     if (!prov) {
-      setError("Ajoutez d'abord un fournisseur (via un premier achat ou le panneau des prix).");
+      setError("Ajoutez d'abord un ETF (via un premier achat ou le champ « Nouvel ETF »).");
       return;
     }
     if (!/^\d{4}-\d{2}$/.test(date)) {
@@ -49,11 +49,11 @@ export default function PurchaseLog({
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader title="Ajouter un achat" />
+        <CardHeader title="Ajouter un achat" subtitle="Enregistrer un achat mensuel d'ETF." />
         <CardBody>
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex flex-col gap-1">
-              <Label>Fournisseur</Label>
+              <Label>ETF</Label>
               <Select value={provider} onChange={(e) => setProvider(e.target.value)}>
                 {providers.map((p) => (
                   <option key={p.name} value={p.name}>{p.name}</option>
@@ -100,7 +100,7 @@ export default function PurchaseLog({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-700 text-left text-xs text-slate-400">
-                <th className="py-2 pr-3">Fournisseur</th>
+                <th className="py-2 pr-3">ETF</th>
                 <th className="py-2 pr-3">Mois</th>
                 <th className="py-2 pr-3 text-right">Quantité</th>
                 <th className="py-2 pr-3 text-right">Prix d'achat</th>
