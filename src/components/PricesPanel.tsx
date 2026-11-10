@@ -1,11 +1,20 @@
 import { useState } from "react";
 import { Button, Card, CardBody, CardHeader, Input } from "./ui";
 import type { Provider } from "../types";
+import { extractIsin, isValidIsin, resolveEtfByIsin } from "../lib/prices";
 
 export interface PriceStatus {
   updated: string;
   ok: { name: string; price: number; ticker: string; exchange: string }[];
   failed: { name: string; error: string }[];
+}
+
+interface Resolved {
+  name: string;
+  price: number;
+  ticker: string;
+  exchange: string;
+  isin: string;
 }
 
 export default function PricesPanel({
@@ -20,22 +29,54 @@ export default function PricesPanel({
   providers: Provider[];
   onPriceChange: (name: string, price: number) => void;
   onDelete: (name: string) => void;
-  onRename: (oldName: string, newName: string) => void;
+  onRename: (oldName: string, newName: string, price?: number) => void;
   onRefresh: () => void;
   refreshing: boolean;
   status: PriceStatus | null;
 }) {
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [resolving, setResolving] = useState(false);
+  const [resolved, setResolved] = useState<Resolved | null>(null);
+  const [resolveError, setResolveError] = useState<string | null>(null);
 
   function startEdit(name: string) {
     setEditing(name);
     setDraft(name);
+    setResolved(null);
+    setResolveError(null);
+  }
+
+  async function resolveDraft() {
+    const isin = extractIsin(draft) ?? (isValidIsin(draft) ? draft.trim().toUpperCase() : null);
+    if (!isin) {
+      setResolveError("Aucun ISIN détecté — écrivez « Nom (ISIN) » ou collez l'ISIN seul.");
+      return;
+    }
+    setResolving(true);
+    setResolveError(null);
+    try {
+      const r = await resolveEtfByIsin(isin);
+      if (r && r.name) {
+        setDraft(`${r.name} (${isin})`);
+        setResolved({ name: r.name, price: Number(r.price.toFixed(2)), ticker: r.ticker, exchange: r.exchange, isin });
+      } else {
+        setResolved(null);
+        setResolveError(`ISIN ${isin} introuvable sur Yahoo Finance.`);
+      }
+    } catch {
+      setResolved(null);
+      setResolveError("Recherche impossible pour le moment.");
+    } finally {
+      setResolving(false);
+    }
   }
 
   function saveEdit() {
-    if (editing) onRename(editing, draft);
+    if (editing) onRename(editing, draft, resolved?.price);
     setEditing(null);
+    setResolved(null);
+    setResolveError(null);
   }
 
   return (
@@ -63,25 +104,38 @@ export default function PricesPanel({
             return (
               <div key={p.name} className="flex flex-col gap-1.5">
                 {editing === p.name ? (
-                  <div className="flex items-center gap-1">
-                    <Input
-                      value={draft}
-                      onChange={(e) => setDraft(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") saveEdit();
-                        if (e.key === "Escape") setEditing(null);
-                      }}
-                      className="w-full"
-                      autoFocus
-                      aria-label={`Renommer ${p.name}`}
-                      placeholder="Nom de l'ETF (ISIN recommandé)"
-                    />
-                    <Button variant="ghost" onClick={saveEdit} className="px-2 py-1 text-emerald-400" aria-label="Enregistrer le nom">
-                      ✓
-                    </Button>
-                    <Button variant="ghost" onClick={() => setEditing(null)} className="px-2 py-1 text-slate-400" aria-label="Annuler">
-                      ✕
-                    </Button>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-1">
+                      <Input
+                        value={draft}
+                        onChange={(e) => setDraft(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveEdit();
+                          if (e.key === "Escape") setEditing(null);
+                        }}
+                        className="w-full"
+                        autoFocus
+                        aria-label={`Renommer ${p.name}`}
+                        placeholder="Nom de l'ETF (ISIN)"
+                      />
+                      <Button variant="ghost" onClick={saveEdit} className="px-2 py-1 text-emerald-400" aria-label="Enregistrer le nom">
+                        ✓
+                      </Button>
+                      <Button variant="ghost" onClick={() => setEditing(null)} className="px-2 py-1 text-slate-400" aria-label="Annuler">
+                        ✕
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" onClick={resolveDraft} disabled={resolving} className="px-2 py-1 text-xs">
+                        {resolving ? "Recherche…" : "Reconnaître l'ISIN"}
+                      </Button>
+                      {resolved && (
+                        <span className="text-xs text-emerald-400">
+                          {resolved.ticker} · {resolved.price} € — nom officiel appliqué
+                        </span>
+                      )}
+                    </div>
+                    {resolveError && <span className="text-xs text-red-400">{resolveError}</span>}
                   </div>
                 ) : (
                   <span className="text-sm font-medium text-slate-200">{p.name}</span>
@@ -130,8 +184,8 @@ export default function PricesPanel({
           )}
         </div>
         <p className="mt-3 text-xs text-slate-500">
-          Renommez un ETF (✎) au format « Nom (ISIN) » pour fiabiliser la reconnaissance automatique. La mise à jour
-          automatique peut échouer : la saisie manuelle reste possible.
+          En édition (✎) : écrivez ou collez un ISIN puis « Reconnaître l'ISIN » — le nom officiel et le cours sont
+          appliqués à l'enregistrement. La saisie manuelle reste possible.
         </p>
       </CardBody>
     </Card>

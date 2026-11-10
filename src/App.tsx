@@ -218,14 +218,23 @@ export default function App() {
           onPriceChange={(name, price) =>
             setProviders((prev) => prev.map((p) => (p.name === name ? { ...p, currentPrice: price } : p)))
           }
-          onRename={(oldName, newName) => {
+          onRename={(oldName, newName, price) => {
             const name = newName.trim();
-            if (!name || name === oldName) return;
+            if (!name || name === oldName) {
+              if (price !== undefined && name === oldName) {
+                setProviders((prev) => prev.map((p) => (p.name === oldName ? { ...p, currentPrice: price } : p)));
+              }
+              return;
+            }
             if (providers.some((p) => p.name === name)) {
               alert(`Un ETF nommé « ${name} » existe déjà.`);
               return;
             }
-            setProviders((prev) => prev.map((p) => (p.name === oldName ? { ...p, name } : p)));
+            setProviders((prev) =>
+              prev.map((p) =>
+                p.name === oldName ? { name, currentPrice: price ?? p.currentPrice } : p
+              )
+            );
             setPurchases((prev) => prev.map((p) => (p.provider === oldName ? { ...p, provider: name } : p)));
           }}
           onDelete={(name) => {

@@ -30,6 +30,10 @@ export function extractIsin(text: string): string | null {
   return m ? m[0] : null;
 }
 
+export function isValidIsin(text: string): boolean {
+  return /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(text.trim().toUpperCase());
+}
+
 export function nameQuery(entry: string): string {
   return entry
     .replace(/\b[A-Z]{2}[A-Z0-9]{9}[0-9]\b/g, "")
