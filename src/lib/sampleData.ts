@@ -18,7 +18,7 @@ export const sampleData: AppData = {
   benchmarks: [
     {
       id: "b1",
-      name: "iShares Core MSCI World (IE00B4L5Y983)",
+      name: "Amundi MSCI World (LU1781541179)",
       currentPrice: 98.6,
       prices: {
         "2025-01": 91.2,
@@ -31,7 +31,7 @@ export const sampleData: AppData = {
     },
     {
       id: "b2",
-      name: "iShares Core S&P 500 (IE00B5BMR087)",
+      name: "Amundi PEA S&P 500 (FR0010315770)",
       currentPrice: 112.3,
       prices: {
         "2025-01": 104.5,

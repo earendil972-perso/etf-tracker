@@ -66,29 +66,49 @@ export function benchmarkGain(
   return shares * b.currentPrice - amount;
 }
 
+export interface ShouldRow {
+  month: string;
+  amount: number;
+  actualGain: number;
+  etfGains: { id: string; name: string; shortName: string; gain: number | null }[];
+  bestId: string | null;
+  bestGain: number | null;
+  missedGain: number | null;
+}
+
+export function shortEtfName(name: string): string {
+  const paren = name.indexOf(" (");
+  return paren > 0 ? name.slice(0, paren) : name;
+}
+
 export function shouldHaveBoughtRows(
   purchases: Purchase[],
   providers: Provider[],
   benchmarks: Benchmark[]
-) {
+): ShouldRow[] {
   const months = purchaseMonths(purchases);
   const invested = investedByMonth(purchases);
   const actual = actualPnlByMonth(purchases, providers);
   return months.map((month) => {
     const amount = invested.get(month) ?? 0;
-    let best: { name: string; gain: number } | null = null;
-    for (const b of benchmarks) {
-      const gain = benchmarkGain(b, month, amount);
-      if (gain !== null && (best === null || gain > best.gain)) {
-        best = { name: b.name, gain };
-      }
-    }
+    const etfGains = benchmarks.map((b) => ({
+      id: b.id,
+      name: b.name,
+      shortName: shortEtfName(b.name),
+      gain: benchmarkGain(b, month, amount),
+    }));
+    const best = etfGains.reduce<{ id: string; gain: number } | null>(
+      (acc, g) =>
+        g.gain !== null && (acc === null || g.gain > acc.gain) ? { id: g.id, gain: g.gain } : acc,
+      null
+    );
     const actualGain = actual.get(month) ?? 0;
     return {
       month,
       amount,
       actualGain,
-      bestName: best?.name ?? null,
+      etfGains,
+      bestId: best?.id ?? null,
       bestGain: best?.gain ?? null,
       missedGain: best ? best.gain - actualGain : null,
     };

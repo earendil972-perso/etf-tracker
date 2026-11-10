@@ -66,7 +66,7 @@ export default function Benchmarks({
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader title="Ajouter un benchmark" subtitle="Nom et/ou ISIN de l'ETF de référence." />
+        <CardHeader title="Ajouter un benchmark" subtitle="Nom et/ou ISIN d'un ETF disponible chez votre banque (ex. catalogue SG)." />
         <CardBody>
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex flex-col gap-1">
