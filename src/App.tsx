@@ -143,6 +143,16 @@ export default function App() {
           onPriceChange={(name, price) =>
             setProviders((prev) => prev.map((p) => (p.name === name ? { ...p, currentPrice: price } : p)))
           }
+          onDelete={(name) => {
+            const count = purchases.filter((p) => p.provider === name).length;
+            const msg = count > 0
+              ? `Supprimer « ${name} » et ses ${count} achat(s) associé(s) ? Cette action est irréversible.`
+              : `Supprimer « ${name} » ?`;
+            if (confirm(msg)) {
+              setProviders((prev) => prev.filter((p) => p.name !== name));
+              setPurchases((prev) => prev.filter((p) => p.provider !== name));
+            }
+          }}
         />
 
         <Card>

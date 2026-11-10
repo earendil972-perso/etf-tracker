@@ -1,12 +1,14 @@
-import { Card, CardBody, CardHeader, Input } from "./ui";
+import { Button, Card, CardBody, CardHeader, Input } from "./ui";
 import type { Provider } from "../types";
 
 export default function PricesPanel({
   providers,
   onPriceChange,
+  onDelete,
 }: {
   providers: Provider[];
   onPriceChange: (name: string, price: number) => void;
+  onDelete: (name: string) => void;
 }) {
   return (
     <Card>
@@ -30,6 +32,15 @@ export default function PricesPanel({
                   aria-label={`Prix actuel ${p.name}`}
                 />
                 <span className="text-sm text-slate-400">€</span>
+                <Button
+                  variant="ghost"
+                  onClick={() => onDelete(p.name)}
+                  className="px-2 py-1 text-slate-400 hover:text-red-300"
+                  aria-label={`Supprimer ${p.name}`}
+                  title="Supprimer cet ETF"
+                >
+                  ✕
+                </Button>
               </div>
             </div>
           ))}
