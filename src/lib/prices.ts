@@ -3,6 +3,7 @@ export interface EtfQuote {
   currency: string;
   ticker: string;
   exchange: string;
+  name?: string;
 }
 
 const PROXIES = [
@@ -36,14 +37,6 @@ export function nameQuery(entry: string): string {
     .trim();
 }
 
-interface LookupDoc {
-  symbol?: string;
-  shortName?: string;
-  price?: { raw?: number };
-  regularMarketPrice?: { raw?: number };
-  exchange?: string;
-}
-
 function tokenOverlap(entry: string, name: string | undefined): number {
   if (!name) return 0;
   const tokens = entry
@@ -54,27 +47,18 @@ function tokenOverlap(entry: string, name: string | undefined): number {
   return tokens.filter((t) => lower.includes(t)).length;
 }
 
-async function lookupByIsin(isin: string, entry: string): Promise<EtfQuote | null> {
+interface LookupDoc {
+  symbol?: string;
+  shortName?: string;
+  regularMarketPrice?: { raw?: number };
+  price?: { raw?: number };
+  exchange?: string;
+}
+
+async function lookupDoc(isin: string): Promise<LookupDoc | null> {
   const url = `https://query1.finance.yahoo.com/v1/finance/lookup?query=${encodeURIComponent(isin)}&type=etf&count=10`;
   const json = (await fetchJson(url)) as { finance?: { result?: { documents?: LookupDoc[] }[] } };
-  const doc = json.finance?.result?.[0]?.documents?.[0];
-  if (!doc?.symbol) return null;
-  if (tokenOverlap(entry, doc.shortName) < 2) return null;
-  const raw = doc.regularMarketPrice?.raw ?? doc.price?.raw;
-  if (typeof raw !== "number") return null;
-  return { price: raw, currency: "EUR", ticker: doc.symbol, exchange: doc.exchange ?? "" };
-}
-
-interface YahooQuote {
-  symbol?: string;
-  quoteType?: string;
-  shortname?: string;
-}
-
-async function searchQuotes(query: string): Promise<YahooQuote[]> {
-  const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=8&newsCount=0`;
-  const json = (await fetchJson(url)) as { quotes?: YahooQuote[] };
-  return json.quotes ?? [];
+  return json.finance?.result?.[0]?.documents?.[0] ?? null;
 }
 
 async function chartPrice(symbol: string): Promise<{ price: number; currency: string; exchange: string }> {
@@ -91,6 +75,73 @@ async function chartPrice(symbol: string): Promise<{ price: number; currency: st
     currency: meta.currency ?? "",
     exchange: meta.exchangeName ?? "",
   };
+}
+
+interface YahooQuote {
+  symbol?: string;
+  quoteType?: string;
+  shortname?: string;
+  longname?: string;
+}
+
+async function searchQuotes(query: string): Promise<YahooQuote[]> {
+  const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=8&newsCount=0`;
+  const json = (await fetchJson(url)) as { quotes?: YahooQuote[] };
+  return json.quotes ?? [];
+}
+
+async function resolveByIsin(isin: string, entry: string): Promise<EtfQuote | null> {
+  const quotes = await searchQuotes(isin);
+  const known = quotes.some((q) => q.symbol?.toUpperCase().startsWith(isin));
+  if (known) {
+    const etf = quotes.find((q) => q.quoteType === "ETF" && q.symbol);
+    if (etf?.symbol) {
+      const { price, currency, exchange } = await chartPrice(etf.symbol);
+      return {
+        price,
+        currency,
+        ticker: etf.symbol,
+        exchange,
+        name: etf.shortname ?? etf.longname,
+      };
+    }
+  }
+  const doc = await lookupDoc(isin);
+  if (doc?.symbol && tokenOverlap(entry, doc.shortName) >= 2) {
+    const raw = doc.regularMarketPrice?.raw ?? doc.price?.raw;
+    if (typeof raw === "number") {
+      return { price: raw, currency: "EUR", ticker: doc.symbol, exchange: doc.exchange ?? "", name: doc.shortName };
+    }
+  }
+  return null;
+}
+
+export async function resolveEtfByIsin(isin: string): Promise<(EtfQuote & { name: string }) | null> {
+  const quotes = await searchQuotes(isin);
+  const known = quotes.some((q) => q.symbol?.toUpperCase().startsWith(isin));
+  const etf = quotes.find((q) => q.quoteType === "ETF" && q.symbol);
+  if (known && etf?.symbol) {
+    const { price, currency, exchange } = await chartPrice(etf.symbol);
+    return {
+      price,
+      currency,
+      ticker: etf.symbol,
+      exchange,
+      name: (etf.shortname ?? etf.longname ?? "").trim(),
+    };
+  }
+  const doc = await lookupDoc(isin);
+  const raw = doc ? (doc.regularMarketPrice?.raw ?? doc.price?.raw) : undefined;
+  if (doc?.symbol && typeof raw === "number") {
+    return {
+      price: raw,
+      currency: "EUR",
+      ticker: doc.symbol,
+      exchange: doc.exchange ?? "",
+      name: (doc.shortName ?? "").trim(),
+    };
+  }
+  return null;
 }
 
 async function priceByName(query: string): Promise<EtfQuote> {
@@ -115,14 +166,14 @@ async function priceByName(query: string): Promise<EtfQuote> {
   };
   const best = [...pool].sort((a, b) => score(b) - score(a))[0];
   const { price, currency, exchange } = await chartPrice(best.symbol!);
-  return { price, currency, ticker: best.symbol!, exchange };
+  return { price, currency, ticker: best.symbol!, exchange, name: best.shortname };
 }
 
 export async function fetchEtfPrice(entry: string): Promise<EtfQuote> {
   const isin = extractIsin(entry);
   if (isin) {
-    const looked = await lookupByIsin(isin, entry);
-    if (looked) return looked;
+    const resolved = await resolveByIsin(isin, entry);
+    if (resolved) return resolved;
   }
   return priceByName(nameQuery(entry) || entry);
 }

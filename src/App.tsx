@@ -8,7 +8,7 @@ import BuyPriceTimeline from "./tabs/BuyPriceTimeline";
 import PurchaseLog from "./tabs/PurchaseLog";
 import { Button, Card, Input, Label } from "./components/ui";
 import { backupFileName, currentMonth, uid, validateAppData } from "./lib/format";
-import { extractIsin, fetchEtfPrice } from "./lib/prices";
+import { extractIsin, fetchEtfPrice, resolveEtfByIsin } from "./lib/prices";
 import { loadInitial, useAutoSave } from "./lib/storage";
 import { sampleData } from "./lib/sampleData";
 import { purchasePnl } from "./lib/calc";
@@ -32,6 +32,10 @@ export default function App() {
   const [newProvider, setNewProvider] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [priceStatus, setPriceStatus] = useState<PriceStatus | null>(null);
+  const [isinInput, setIsinInput] = useState("");
+  const [isinLookup, setIsinLookup] = useState<
+    { state: "loading" } | { state: "found"; name: string; price: number; ticker: string; exchange: string; isin: string } | { state: "notfound"; isin: string } | null
+  >(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { purchases, providers, benchmarks } = data;
@@ -86,6 +90,37 @@ export default function App() {
       }));
     }
     setRefreshing(false);
+  }
+
+  async function resolveIsin() {
+    const isin = isinInput.trim().toUpperCase();
+    if (!/^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(isin)) {
+      setIsinLookup({ state: "notfound", isin });
+      return;
+    }
+    setIsinLookup({ state: "loading" });
+    try {
+      const r = await resolveEtfByIsin(isin);
+      if (r && r.name) {
+        setIsinLookup({ state: "found", name: r.name, price: Number(r.price.toFixed(2)), ticker: r.ticker, exchange: r.exchange, isin });
+      } else {
+        setIsinLookup({ state: "notfound", isin });
+      }
+    } catch {
+      setIsinLookup({ state: "notfound", isin });
+    }
+  }
+
+  function addResolvedEtf() {
+    if (isinLookup?.state !== "found") return;
+    const name = `${isinLookup.name} (${isinLookup.isin})`;
+    if (providers.some((p) => p.name === name)) {
+      alert(`Un ETF nommé « ${name} » existe déjà.`);
+      return;
+    }
+    setProviders((prev) => [...prev, { name, currentPrice: isinLookup.price }]);
+    setIsinInput("");
+    setIsinLookup(null);
   }
 
   function exportData() {
@@ -229,6 +264,34 @@ export default function App() {
             >
               Ajouter l'ETF
             </Button>
+          </div>
+          <div className="mt-4 flex flex-wrap items-end gap-3 border-t border-slate-700 pt-4">
+            <div className="flex flex-col gap-1">
+              <Label>Reconnaître un ETF par ISIN</Label>
+              <Input
+                value={isinInput}
+                onChange={(e) => setIsinInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && resolveIsin()}
+                placeholder="ex. FR0013412020"
+                className="w-52 font-mono"
+              />
+            </div>
+            <Button variant="outline" onClick={resolveIsin} disabled={isinLookup?.state === "loading"}>
+              {isinLookup?.state === "loading" ? "Recherche…" : "Reconnaître"}
+            </Button>
+            {isinLookup?.state === "found" && (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm text-slate-200">
+                  {isinLookup.name} · {isinLookup.ticker} ({isinLookup.exchange}) · {isinLookup.price} €
+                </span>
+                <Button onClick={addResolvedEtf}>Ajouter cet ETF</Button>
+              </div>
+            )}
+            {isinLookup?.state === "notfound" && (
+              <span className="text-sm text-red-400">
+                ISIN {isinLookup.isin || "invalide"} introuvable sur Yahoo Finance — ajoutez-le manuellement ci-dessus.
+              </span>
+            )}
           </div>
         </Card>
 
