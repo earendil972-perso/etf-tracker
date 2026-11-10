@@ -8,7 +8,7 @@ import BuyPriceTimeline from "./tabs/BuyPriceTimeline";
 import PurchaseLog from "./tabs/PurchaseLog";
 import { Button, Card, Input, Label } from "./components/ui";
 import { backupFileName, currentMonth, uid, validateAppData } from "./lib/format";
-import { extractIsin, fetchEtfPrice, resolveEtfByIsin } from "./lib/prices";
+import { extractIsin, fetchEtfPrice, resolveEtfByIsin, sleep } from "./lib/prices";
 import { loadInitial, useAutoSave } from "./lib/storage";
 import { sampleData } from "./lib/sampleData";
 import { purchasePnl } from "./lib/calc";
@@ -71,6 +71,7 @@ export default function App() {
       } catch (e) {
         failed.push({ name: pr.name, error: e instanceof Error ? e.message : "Échec" });
       }
+      await sleep(400);
     }
     const updated = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
     setPriceStatus({ updated, ok, failed });

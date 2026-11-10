@@ -9,6 +9,7 @@ export interface EtfQuote {
 const PROXIES = [
   (url: string) => url,
   (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  (url: string) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
 ];
 
 async function fetchJson(url: string): Promise<unknown> {
@@ -17,13 +18,19 @@ async function fetchJson(url: string): Promise<unknown> {
     try {
       const res = await fetch(wrap(url));
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
+      const json = await res.json();
+      if (typeof json?.contents === "string") {
+        return JSON.parse(json.contents);
+      }
+      return json;
     } catch (e) {
       lastError = e;
     }
   }
   throw lastError instanceof Error ? lastError : new Error("Recherche impossible");
 }
+
+export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export function extractIsin(text: string): string | null {
   const m = text.match(/\b[A-Z]{2}[A-Z0-9]{9}[0-9]\b/);
