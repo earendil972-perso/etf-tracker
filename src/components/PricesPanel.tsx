@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button, Card, CardBody, CardHeader, Input } from "./ui";
 import type { Provider } from "../types";
 
@@ -11,6 +12,7 @@ export default function PricesPanel({
   providers,
   onPriceChange,
   onDelete,
+  onRename,
   onRefresh,
   refreshing,
   status,
@@ -18,10 +20,24 @@ export default function PricesPanel({
   providers: Provider[];
   onPriceChange: (name: string, price: number) => void;
   onDelete: (name: string) => void;
+  onRename: (oldName: string, newName: string) => void;
   onRefresh: () => void;
   refreshing: boolean;
   status: PriceStatus | null;
 }) {
+  const [editing, setEditing] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
+
+  function startEdit(name: string) {
+    setEditing(name);
+    setDraft(name);
+  }
+
+  function saveEdit() {
+    if (editing) onRename(editing, draft);
+    setEditing(null);
+  }
+
   return (
     <Card>
       <CardHeader
@@ -46,7 +62,30 @@ export default function PricesPanel({
             const ok = status?.ok.find((o) => o.name === p.name);
             return (
               <div key={p.name} className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium text-slate-200">{p.name}</span>
+                {editing === p.name ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") saveEdit();
+                        if (e.key === "Escape") setEditing(null);
+                      }}
+                      className="w-full"
+                      autoFocus
+                      aria-label={`Renommer ${p.name}`}
+                      placeholder="Nom de l'ETF (ISIN recommandé)"
+                    />
+                    <Button variant="ghost" onClick={saveEdit} className="px-2 py-1 text-emerald-400" aria-label="Enregistrer le nom">
+                      ✓
+                    </Button>
+                    <Button variant="ghost" onClick={() => setEditing(null)} className="px-2 py-1 text-slate-400" aria-label="Annuler">
+                      ✕
+                    </Button>
+                  </div>
+                ) : (
+                  <span className="text-sm font-medium text-slate-200">{p.name}</span>
+                )}
                 <div className="flex items-center gap-1">
                   <Input
                     type="number"
@@ -58,6 +97,15 @@ export default function PricesPanel({
                     aria-label={`Prix actuel ${p.name}`}
                   />
                   <span className="text-sm text-slate-400">€</span>
+                  <Button
+                    variant="ghost"
+                    onClick={() => startEdit(p.name)}
+                    className="px-2 py-1 text-slate-400 hover:text-indigo-300"
+                    aria-label={`Renommer ${p.name}`}
+                    title="Renommer cet ETF (pour la recherche automatique)"
+                  >
+                    ✎
+                  </Button>
                   <Button
                     variant="ghost"
                     onClick={() => onDelete(p.name)}
@@ -82,8 +130,8 @@ export default function PricesPanel({
           )}
         </div>
         <p className="mt-3 text-xs text-slate-500">
-          Reconnaissance par ISIN ou nom via Yahoo Finance (bourses européennes, priorité Euronext Paris). La mise à
-          jour automatique peut échouer : la saisie manuelle reste possible.
+          Renommez un ETF (✎) au format « Nom (ISIN) » pour fiabiliser la reconnaissance automatique. La mise à jour
+          automatique peut échouer : la saisie manuelle reste possible.
         </p>
       </CardBody>
     </Card>
