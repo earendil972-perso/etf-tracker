@@ -91,8 +91,43 @@ for (const { isin, nom, ticker } of entries) {
   }
   await new Promise((r) => setTimeout(r, 500));
 }
+const catalog = JSON.parse(readFileSync("public/etf-catalog.json", "utf8"));
+const catalogData = {};
+for (const { nom, ticker, categorie } of catalog) {
+  try {
+    const chart = await getJson(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?range=1y&interval=1mo`
+    );
+    const res = chart.chart?.result?.[0];
+    const meta = res?.meta;
+    const closes = (res?.indicators?.quote?.[0]?.close ?? []).filter((c) => typeof c === "number");
+    if (!meta || typeof meta.regularMarketPrice !== "number" || closes.length < 2) {
+      throw new Error("historique insuffisant");
+    }
+    const series = [...closes, meta.regularMarketPrice];
+    const perf = (n) => {
+      if (series.length <= n) return null;
+      const base = series[series.length - 1 - n];
+      return Number((((series[series.length - 1] / base) - 1) * 100).toFixed(1));
+    };
+    catalogData[ticker] = {
+      nom,
+      categorie,
+      prix: Number(meta.regularMarketPrice.toFixed(2)),
+      perf: { m1: perf(1), m3: perf(3), m6: perf(6), y1: perf(series.length - 1) },
+    };
+    console.log(ticker, "→", catalogData[ticker].prix, "€ | perf 6m:", catalogData[ticker].perf.m6, "%");
+  } catch (e) {
+    console.log(ticker, "→ catalogue erreur:", e.message);
+  }
+  await new Promise((r) => setTimeout(r, 400));
+}
+
 writeFileSync(
   "public/prices.json",
-  JSON.stringify({ updated: new Date().toISOString(), prices }, null, 2) + "\n"
+  JSON.stringify({ updated: new Date().toISOString(), prices, catalog: catalogData }, null, 2) + "\n"
 );
-console.log("public/prices.json écrit pour", Object.keys(prices).length, "ISIN(s)");
+console.log(
+  "public/prices.json écrit pour", Object.keys(prices).length, "ISIN(s) et",
+  Object.keys(catalogData).length, "ETF de catalogue"
+);

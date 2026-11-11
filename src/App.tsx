@@ -8,7 +8,7 @@ import BuyPriceTimeline from "./tabs/BuyPriceTimeline";
 import PurchaseLog from "./tabs/PurchaseLog";
 import { Button, Card, Input, Label } from "./components/ui";
 import { backupFileName, currentMonth, uid, validateAppData } from "./lib/format";
-import { extractIsin, fetchEtfPrice, resolveEtfByIsin, sleep } from "./lib/prices";
+import { extractIsin, fetchEtfPrice, fetchRepoPrices, resolveEtfByIsin, sleep } from "./lib/prices";
 import { loadInitial, useAutoSave } from "./lib/storage";
 import { sampleData } from "./lib/sampleData";
 import { purchasePnl } from "./lib/calc";
@@ -56,20 +56,6 @@ export default function App() {
         ? prev
         : [...prev, { name: p.provider, currentPrice: p.buyPrice }]
     );
-  }
-
-  async function fetchRepoPrices(): Promise<{ updated: string; prices: Record<string, number> } | null> {
-    try {
-      const res = await fetch(`${import.meta.env.BASE_URL}prices.json?t=${Date.now()}`);
-      if (!res.ok) return null;
-      const j = await res.json();
-      if (j && typeof j === "object" && j.prices) {
-        return { updated: String(j.updated ?? ""), prices: j.prices };
-      }
-      return null;
-    } catch {
-      return null;
-    }
   }
 
   async function refreshPrices() {

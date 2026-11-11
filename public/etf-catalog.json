@@ -1,0 +1,15 @@
+[
+  { "nom": "Amundi PEA Monde (MSCI World)", "ticker": "DCAM.PA", "categorie": "Monde · PEA", "isin": "FR001400U5Q4" },
+  { "nom": "Amundi MSCI World", "ticker": "CW8.PA", "categorie": "Monde", "isin": "LU1781541179" },
+  { "nom": "iShares Core MSCI World", "ticker": "EUNL.DE", "categorie": "Monde", "isin": "IE00B4L5Y983" },
+  { "nom": "iShares MSCI World Swap PEA", "ticker": "WPEA.PA", "categorie": "Monde · PEA" },
+  { "nom": "Amundi PEA S&P 500", "ticker": "PSP5.PA", "categorie": "USA · PEA", "isin": "FR0010315770" },
+  { "nom": "BNP Paribas Easy S&P 500", "ticker": "ESE.PA", "categorie": "USA" },
+  { "nom": "Amundi PEA MSCI Europe", "ticker": "PCEU.PA", "categorie": "Europe · PEA", "isin": "FR0013412038" },
+  { "nom": "Amundi Core Stoxx Europe 600", "ticker": "MEUD.PA", "categorie": "Europe", "isin": "LU0908500753" },
+  { "nom": "Amundi PEA Emergent (MSCI EM)", "ticker": "PAEEM.PA", "categorie": "Émergents · PEA", "isin": "FR0013412020" },
+  { "nom": "Amundi MSCI Emerging Markets", "ticker": "AEEM.PA", "categorie": "Émergents" },
+  { "nom": "Invesco Nasdaq-100", "ticker": "EQQQ.DE", "categorie": "Tech USA" },
+  { "nom": "Amundi CAC 40", "ticker": "CAC.PA", "categorie": "France" },
+  { "nom": "Amundi MSCI World Swap II", "ticker": "WLD.PA", "categorie": "Monde" }
+]

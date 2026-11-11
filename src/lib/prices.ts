@@ -6,6 +6,43 @@ export interface EtfQuote {
   name?: string;
 }
 
+export interface CatalogEntryData {
+  nom: string;
+  categorie: string;
+  prix: number;
+  perf: { m1: number | null; m3: number | null; m6: number | null; y1: number | null };
+}
+
+export interface RepoPrices {
+  updated: string;
+  prices: Record<string, number>;
+  catalog?: Record<string, CatalogEntryData>;
+}
+
+export async function fetchRepoPrices(): Promise<RepoPrices | null> {
+  try {
+    const res = await fetch(`${import.meta.env.BASE_URL}prices.json?t=${Date.now()}`);
+    if (!res.ok) return null;
+    const j = await res.json();
+    if (j && typeof j === "object" && j.prices) {
+      return { updated: String(j.updated ?? ""), prices: j.prices, catalog: j.catalog };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function tokenOverlap(entry: string, name: string | undefined): number {
+  if (!name) return 0;
+  const tokens = entry
+    .toLowerCase()
+    .split(/[^a-z0-9&]+/)
+    .filter((t) => t.length >= 3);
+  const lower = name.toLowerCase();
+  return tokens.filter((t) => lower.includes(t)).length;
+}
+
 const PROXIES = [
   (url: string) => url,
   (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
@@ -46,16 +83,6 @@ export function nameQuery(entry: string): string {
     .replace(/\b[A-Z]{2}[A-Z0-9]{9}[0-9]\b/g, "")
     .replace(/[()]/g, "")
     .trim();
-}
-
-function tokenOverlap(entry: string, name: string | undefined): number {
-  if (!name) return 0;
-  const tokens = entry
-    .toLowerCase()
-    .split(/[^a-z0-9&]+/)
-    .filter((t) => t.length >= 3);
-  const lower = name.toLowerCase();
-  return tokens.filter((t) => lower.includes(t)).length;
 }
 
 interface LookupDoc {
