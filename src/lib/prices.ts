@@ -9,6 +9,7 @@ export interface EtfQuote {
 export interface CatalogEntryData {
   nom: string;
   categorie: string;
+  isin?: string;
   prix: number;
   perf: { m1: number | null; m3: number | null; m6: number | null; y1: number | null };
 }

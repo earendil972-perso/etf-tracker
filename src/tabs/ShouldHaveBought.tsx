@@ -12,7 +12,7 @@ import {
 import { Badge, Button, Card, CardBody, CardHeader, Select } from "../components/ui";
 import { fmtEUR, fmtPct, monthLabel } from "../lib/format";
 import { shouldHaveBoughtRows, shortEtfName, type ShouldRow } from "../lib/calc";
-import { extractIsin, fetchRepoPrices, tokenOverlap, type CatalogEntryData, type RepoPrices } from "../lib/prices";
+import { extractIsin, fetchRepoPrices, type CatalogEntryData, type RepoPrices } from "../lib/prices";
 import type { Benchmark, Purchase, Provider } from "../types";
 
 const BAR_COLORS = ["#f59e0b", "#10b981", "#ec4899", "#06b6d4", "#a855f7", "#eab308"];
@@ -45,12 +45,25 @@ function MarketSuggestions({ providers }: { providers: Provider[] }) {
     ticker,
     ...d,
   }));
-  const isHeld = (e: { nom: string }) =>
-    providers.some(
-      (p) =>
-        (extractIsin(p.name) !== null && extractIsin(p.name) === extractIsin(e.nom)) ||
-        tokenOverlap(e.nom, p.name) >= 2
-    );
+  const normalizeName = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  const cleanName = (s: string) => {
+    const isin = extractIsin(s);
+    return normalizeName(isin ? s.replace(isin, "") : s);
+  };
+  const isHeld = (e: { nom: string; isin?: string }) => {
+    const etfIsin = e.isin ?? extractIsin(e.nom);
+    return providers.some((p) => {
+      const pIsin = extractIsin(p.name);
+      if (pIsin && etfIsin && pIsin === etfIsin) return true;
+      return cleanName(p.name) === cleanName(e.nom);
+    });
+  };
   const ranked = entries
     .filter((e) => e.perf[window] !== null)
     .sort((a, b) => (b.perf[window] ?? 0) - (a.perf[window] ?? 0));

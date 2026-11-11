@@ -93,7 +93,7 @@ for (const { isin, nom, ticker } of entries) {
 }
 const catalog = JSON.parse(readFileSync("public/etf-catalog.json", "utf8"));
 const catalogData = {};
-for (const { nom, ticker, categorie } of catalog) {
+for (const { nom, ticker, categorie, isin } of catalog) {
   try {
     const chart = await getJson(
       `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?range=1y&interval=1mo`
@@ -113,6 +113,7 @@ for (const { nom, ticker, categorie } of catalog) {
     catalogData[ticker] = {
       nom,
       categorie,
+      ...(isin ? { isin } : {}),
       prix: Number(meta.regularMarketPrice.toFixed(2)),
       perf: { m1: perf(1), m3: perf(3), m6: perf(6), y1: perf(series.length - 1) },
     };
