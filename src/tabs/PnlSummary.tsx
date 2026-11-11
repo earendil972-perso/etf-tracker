@@ -11,7 +11,14 @@ import {
 } from "recharts";
 import { Card, CardBody, CardHeader } from "../components/ui";
 import { fmtEUR, fmtNum, fmtPct, monthLabel } from "../lib/format";
-import { cumulativePnlTimeline, purchasePnl, shortEtfName, type PurchasePnl } from "../lib/calc";
+import {
+  cumulativePnlTimeline,
+  cumulativeSharesTimeline,
+  cumulativeValueTimeline,
+  purchasePnl,
+  shortEtfName,
+  type PurchasePnl,
+} from "../lib/calc";
 import type { Provider } from "../types";
 
 const LINE_COLORS = ["#818cf8", "#10b981", "#f59e0b", "#ec4899", "#06b6d4", "#a855f7", "#eab308"];
@@ -24,7 +31,10 @@ export default function PnlSummary({
   providers: Provider[];
 }) {
   const rows = purchases.map((p) => purchasePnl(p.purchase, providers));
-  const chartData = cumulativePnlTimeline(purchases.map((p) => p.purchase), providers);
+  const allPurchases = purchases.map((p) => p.purchase);
+  const chartData = cumulativePnlTimeline(allPurchases, providers);
+  const sharesData = cumulativeSharesTimeline(allPurchases, providers);
+  const valueData = cumulativeValueTimeline(allPurchases, providers);
   const etfNames = [
     ...new Set(
       purchases
@@ -61,6 +71,98 @@ export default function PnlSummary({
                   />
                   <Legend formatter={(v: string) => shortEtfName(v)} />
                   <ReferenceLine y={0} stroke="#64748b" />
+                  {etfNames.map((name, i) => (
+                    <Line
+                      key={name}
+                      type="monotone"
+                      dataKey={name}
+                      name={name}
+                      stroke={LINE_COLORS[i % LINE_COLORS.length]}
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                      connectNulls
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader
+          title="Parts cumulées par ETF"
+          subtitle="Nombre total de parts détenues, mois par mois, une courbe par ETF."
+        />
+        <CardBody>
+          {sharesData.length === 0 ? (
+            <p className="text-sm text-slate-400">Aucun achat enregistré.</p>
+          ) : (
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={sharesData} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
+                  <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="month"
+                    tickFormatter={(m: string) => monthLabel(m)}
+                    tick={{ fill: "#94a3b8", fontSize: 11 }}
+                  />
+                  <YAxis
+                    tick={{ fill: "#94a3b8", fontSize: 11 }}
+                    tickFormatter={(v) => fmtNum(v, 2)}
+                    width={70}
+                  />
+                  <Tooltip
+                    formatter={(v) => (v === null || v === undefined || Number.isNaN(Number(v)) ? "—" : fmtNum(Number(v), 4))}
+                    labelFormatter={(m) => monthLabel(String(m))}
+                    contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, color: "#e2e8f0" }}
+                  />
+                  <Legend formatter={(v: string) => shortEtfName(v)} />
+                  {etfNames.map((name, i) => (
+                    <Line
+                      key={name}
+                      type="monotone"
+                      dataKey={name}
+                      name={name}
+                      stroke={LINE_COLORS[i % LINE_COLORS.length]}
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                      connectNulls
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader
+          title="Valeur cumulée par ETF"
+          subtitle="Valeur des parts détenues au prix du jour, mois par mois, une courbe par ETF."
+        />
+        <CardBody>
+          {valueData.length === 0 ? (
+            <p className="text-sm text-slate-400">Aucun achat enregistré.</p>
+          ) : (
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={valueData} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
+                  <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="month"
+                    tickFormatter={(m: string) => monthLabel(m)}
+                    tick={{ fill: "#94a3b8", fontSize: 11 }}
+                  />
+                  <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} tickFormatter={(v) => `${v} €`} width={70} />
+                  <Tooltip
+                    formatter={(v) => (v === null || v === undefined || Number.isNaN(Number(v)) ? "—" : fmtEUR(Number(v)))}
+                    labelFormatter={(m) => monthLabel(String(m))}
+                    contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, color: "#e2e8f0" }}
+                  />
+                  <Legend formatter={(v: string) => shortEtfName(v)} />
                   {etfNames.map((name, i) => (
                     <Line
                       key={name}
