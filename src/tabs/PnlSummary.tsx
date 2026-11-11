@@ -1,7 +1,8 @@
 import {
-  Bar,
-  BarChart,
-  Cell,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -10,8 +11,10 @@ import {
 } from "recharts";
 import { Card, CardBody, CardHeader } from "../components/ui";
 import { fmtEUR, fmtNum, fmtPct, monthLabel } from "../lib/format";
-import { purchasePnl, type PurchasePnl } from "../lib/calc";
+import { cumulativePnlTimeline, purchasePnl, shortEtfName, type PurchasePnl } from "../lib/calc";
 import type { Provider } from "../types";
+
+const LINE_COLORS = ["#818cf8", "#10b981", "#f59e0b", "#ec4899", "#06b6d4", "#a855f7", "#eab308"];
 
 export default function PnlSummary({
   purchases,
@@ -21,35 +24,56 @@ export default function PnlSummary({
   providers: Provider[];
 }) {
   const rows = purchases.map((p) => purchasePnl(p.purchase, providers));
-  const chartData = rows.map((r) => ({
-    name: `${r.purchase.provider} · ${monthLabel(r.purchase.date)}`,
-    pnl: Number(r.pnl.toFixed(2)),
-  }));
+  const chartData = cumulativePnlTimeline(purchases.map((p) => p.purchase), providers);
+  const etfNames = [
+    ...new Set(
+      purchases
+        .map((p) => p.purchase.provider)
+        .filter((name) => chartData.some((row) => row[name] !== null))
+    ),
+  ];
 
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader title="Gain/perte par achat" subtitle="Prix du jour vs prix d'achat, par achat individuel." />
+        <CardHeader
+          title="Plus-value par ETF"
+          subtitle="Plus-value cumulée au prix du jour, mois par mois, une courbe par ETF."
+        />
         <CardBody>
           {chartData.length === 0 ? (
             <p className="text-sm text-slate-400">Aucun achat enregistré.</p>
           ) : (
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 40, left: 8 }}>
-                  <XAxis dataKey="name" tick={{ fill: "#94a3b8", fontSize: 11 }} angle={-30} textAnchor="end" interval={0} />
-                  <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} tickFormatter={(v) => `${v} €`} width={60} />
+                <LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
+                  <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="month"
+                    tickFormatter={(m: string) => monthLabel(m)}
+                    tick={{ fill: "#94a3b8", fontSize: 11 }}
+                  />
+                  <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} tickFormatter={(v) => `${v} €`} width={70} />
                   <Tooltip
-                    formatter={(v: number) => fmtEUR(v)}
+                    formatter={(v) => (v === null || v === undefined || Number.isNaN(Number(v)) ? "—" : fmtEUR(Number(v)))}
+                    labelFormatter={(m) => monthLabel(String(m))}
                     contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, color: "#e2e8f0" }}
                   />
+                  <Legend formatter={(v: string) => shortEtfName(v)} />
                   <ReferenceLine y={0} stroke="#64748b" />
-                  <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
-                    {chartData.map((d, i) => (
-                      <Cell key={i} fill={d.pnl >= 0 ? "#10b981" : "#ef4444"} />
-                    ))}
-                  </Bar>
-                </BarChart>
+                  {etfNames.map((name, i) => (
+                    <Line
+                      key={name}
+                      type="monotone"
+                      dataKey={name}
+                      name={name}
+                      stroke={LINE_COLORS[i % LINE_COLORS.length]}
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                      connectNulls
+                    />
+                  ))}
+                </LineChart>
               </ResponsiveContainer>
             </div>
           )}

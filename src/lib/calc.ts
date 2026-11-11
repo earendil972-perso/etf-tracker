@@ -115,6 +115,25 @@ export function shouldHaveBoughtRows(
   });
 }
 
+export function cumulativePnlTimeline(purchases: Purchase[], providers: Provider[]) {
+  const months = purchaseMonths(purchases);
+  if (months.length === 0) return [];
+  const all = monthsBetween(months[0], months[months.length - 1]);
+  return all.map((month) => {
+    const row: Record<string, string | number | null> = { month };
+    for (const pr of providers) {
+      const buys = purchases.filter((p) => p.provider === pr.name && p.date <= month);
+      if (buys.length === 0) {
+        row[pr.name] = null;
+        continue;
+      }
+      const pnl = buys.reduce((s, b) => s + b.quantity * (pr.currentPrice - b.buyPrice), 0);
+      row[pr.name] = Number(pnl.toFixed(2));
+    }
+    return row;
+  });
+}
+
 export function buyPriceTimeline(purchases: Purchase[], providers: Provider[]) {
   const months = purchaseMonths(purchases);
   if (months.length === 0) return [];
