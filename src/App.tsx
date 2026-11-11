@@ -353,6 +353,7 @@ export default function App() {
               purchases={purchases}
               providers={providers}
               onAdd={addPurchase}
+              onUpdate={(p) => setPurchases((prev) => prev.map((x) => (x.id === p.id ? p : x)))}
               onDelete={(id) => setPurchases((prev) => prev.filter((p) => p.id !== id))}
             />
           )}

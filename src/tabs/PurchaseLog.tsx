@@ -3,15 +3,19 @@ import { Button, Card, CardBody, CardHeader, Input, Label, Select } from "../com
 import { fmtEUR, fmtNum, monthLabel, uid } from "../lib/format";
 import type { Purchase, Provider } from "../types";
 
+type EditState = { id: string; provider: string; date: string; quantity: string; buyPrice: string };
+
 export default function PurchaseLog({
   purchases,
   providers,
   onAdd,
+  onUpdate,
   onDelete,
 }: {
   purchases: Purchase[];
   providers: Provider[];
   onAdd: (p: Omit<Purchase, "id">) => void;
+  onUpdate: (p: Purchase) => void;
   onDelete: (id: string) => void;
 }) {
   const [provider, setProvider] = useState("");
@@ -19,6 +23,34 @@ export default function PurchaseLog({
   const [quantity, setQuantity] = useState("");
   const [buyPrice, setBuyPrice] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<EditState | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  function startEdit(p: Purchase) {
+    setEditing({ id: p.id, provider: p.provider, date: p.date, quantity: String(p.quantity), buyPrice: String(p.buyPrice) });
+    setEditError(null);
+  }
+
+  function saveEdit() {
+    if (!editing) return;
+    const qty = Number(editing.quantity);
+    const price = Number(editing.buyPrice);
+    if (!/^\d{4}-\d{2}$/.test(editing.date)) {
+      setEditError("Mois invalide.");
+      return;
+    }
+    if (!Number.isFinite(qty) || qty <= 0) {
+      setEditError("Quantité invalide (doit être > 0).");
+      return;
+    }
+    if (!Number.isFinite(price) || price <= 0) {
+      setEditError("Prix d'achat invalide (doit être > 0).");
+      return;
+    }
+    onUpdate({ id: editing.id, provider: editing.provider, date: editing.date, quantity: qty, buyPrice: price });
+    setEditing(null);
+    setEditError(null);
+  }
 
   function add() {
     const qty = Number(quantity);
@@ -111,22 +143,81 @@ export default function PurchaseLog({
             <tbody>
               {[...purchases]
                 .sort((a, b) => a.date.localeCompare(b.date))
-                .map((p) => (
-                  <tr key={p.id} className="border-b border-slate-800 last:border-0">
-                    <td className="py-2 pr-3 font-medium text-slate-200">{p.provider}</td>
-                    <td className="py-2 pr-3 text-slate-300">{monthLabel(p.date)}</td>
-                    <td className="py-2 pr-3 text-right text-slate-300">{fmtNum(p.quantity, 4)}</td>
-                    <td className="py-2 pr-3 text-right text-slate-300">{fmtEUR(p.buyPrice)}</td>
-                    <td className="py-2 pr-3 text-right text-slate-300">{fmtEUR(p.quantity * p.buyPrice)}</td>
-                    <td className="py-2 text-right">
-                      <Button variant="destructive" onClick={() => onDelete(p.id)} className="px-2 py-1 text-xs">
-                        Supprimer
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                .map((p) =>
+                  editing?.id === p.id ? (
+                    <tr key={p.id} className="border-b border-slate-800 last:border-0 bg-slate-800/40">
+                      <td className="py-2 pr-3">
+                        <Select
+                          value={editing.provider}
+                          onChange={(e) => setEditing({ ...editing, provider: e.target.value })}
+                          className="w-44 text-xs"
+                        >
+                          {providers.map((pr) => (
+                            <option key={pr.name} value={pr.name}>{pr.name}</option>
+                          ))}
+                        </Select>
+                      </td>
+                      <td className="py-2 pr-3">
+                        <Input
+                          type="month"
+                          value={editing.date}
+                          onChange={(e) => setEditing({ ...editing, date: e.target.value })}
+                          className="w-36 text-xs"
+                        />
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        <Input
+                          type="number"
+                          step="any"
+                          min="0"
+                          value={editing.quantity}
+                          onChange={(e) => setEditing({ ...editing, quantity: e.target.value })}
+                          className="w-24 text-right text-xs"
+                        />
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={editing.buyPrice}
+                          onChange={(e) => setEditing({ ...editing, buyPrice: e.target.value })}
+                          className="w-28 text-right text-xs"
+                        />
+                      </td>
+                      <td className="py-2 pr-3 text-right text-slate-400">—</td>
+                      <td className="py-2 text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button onClick={saveEdit} className="px-2 py-1 text-xs">Enregistrer</Button>
+                          <Button variant="ghost" onClick={() => setEditing(null)} className="px-2 py-1 text-xs">
+                            Annuler
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={p.id} className="border-b border-slate-800 last:border-0">
+                      <td className="py-2 pr-3 font-medium text-slate-200">{p.provider}</td>
+                      <td className="py-2 pr-3 text-slate-300">{monthLabel(p.date)}</td>
+                      <td className="py-2 pr-3 text-right text-slate-300">{fmtNum(p.quantity, 4)}</td>
+                      <td className="py-2 pr-3 text-right text-slate-300">{fmtEUR(p.buyPrice)}</td>
+                      <td className="py-2 pr-3 text-right text-slate-300">{fmtEUR(p.quantity * p.buyPrice)}</td>
+                      <td className="py-2 text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button variant="outline" onClick={() => startEdit(p)} className="px-2 py-1 text-xs">
+                            Modifier
+                          </Button>
+                          <Button variant="destructive" onClick={() => onDelete(p.id)} className="px-2 py-1 text-xs">
+                            Supprimer
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                )}
             </tbody>
           </table>
+          {editError && <p className="mt-2 text-sm text-red-400">{editError}</p>}
           {purchases.length === 0 && (
             <p className="mt-2 text-sm text-slate-400">Aucun achat enregistré.</p>
           )}
