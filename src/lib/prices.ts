@@ -129,6 +129,19 @@ async function searchQuotes(query: string): Promise<YahooQuote[]> {
   return json.quotes ?? [];
 }
 
+export async function catalogEntryByIsin(
+  isin: string
+): Promise<{ ticker: string; nom: string; prix: number } | null> {
+  const upper = isin.toUpperCase();
+  const repo = await fetchRepoPrices();
+  for (const [ticker, d] of Object.entries(repo?.catalog ?? {})) {
+    if (d.isin?.toUpperCase() === upper || extractIsin(d.nom) === upper) {
+      return { ticker, nom: d.nom, prix: d.prix };
+    }
+  }
+  return null;
+}
+
 async function resolveByIsin(isin: string, entry: string): Promise<EtfQuote | null> {
   const quotes = await searchQuotes(isin);
   const known = quotes.some((q) => q.symbol?.toUpperCase().startsWith(isin));
@@ -156,6 +169,16 @@ async function resolveByIsin(isin: string, entry: string): Promise<EtfQuote | nu
 }
 
 export async function resolveEtfByIsin(isin: string): Promise<(EtfQuote & { name: string }) | null> {
+  const catalog = await catalogEntryByIsin(isin);
+  if (catalog) {
+    return {
+      price: catalog.prix,
+      currency: "EUR",
+      ticker: catalog.ticker,
+      exchange: "catalogue",
+      name: catalog.nom,
+    };
+  }
   const quotes = await searchQuotes(isin);
   const known = quotes.some((q) => q.symbol?.toUpperCase().startsWith(isin));
   const etf = quotes.find((q) => q.quoteType === "ETF" && q.symbol);
@@ -211,6 +234,10 @@ async function priceByName(query: string): Promise<EtfQuote> {
 export async function fetchEtfPrice(entry: string): Promise<EtfQuote> {
   const isin = extractIsin(entry);
   if (isin) {
+    const catalog = await catalogEntryByIsin(isin);
+    if (catalog) {
+      return { price: catalog.prix, currency: "EUR", ticker: catalog.ticker, exchange: "catalogue", name: catalog.nom };
+    }
     const resolved = await resolveByIsin(isin, entry);
     if (resolved) return resolved;
   }
