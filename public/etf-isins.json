@@ -1,0 +1,8 @@
+[
+  { "isin": "FR0013412020", "nom": "Amundi PEA Emergent MSCI Emerging Markets", "ticker": "PAEEM.PA" },
+  { "isin": "FR001400U5Q4", "nom": "Amundi PEA Monde MSCI World", "ticker": "DCAM.PA" },
+  { "isin": "FR0013412038", "nom": "Amundi PEA MSCI Europe", "ticker": "PCEU.PA" },
+  { "isin": "LU1781541179", "nom": "Amundi MSCI World", "ticker": "CW8.PA" },
+  { "isin": "FR0010315770", "nom": "Amundi PEA S&P 500", "ticker": "PSP5.PA" },
+  { "isin": "LU0908500753", "nom": "Amundi Stoxx Europe 600", "ticker": "MEUD.PA" }
+]

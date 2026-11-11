@@ -1,0 +1,38 @@
+name: Update ETF prices
+
+on:
+  schedule:
+    - cron: "35 17 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch latest prices
+        run: node scripts/update-prices.mjs
+      - name: Commit updated prices
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/prices.json
+          git diff --cached --quiet || git commit -m "chore: update ETF prices"
+          git push
+      - name: Build site
+        run: |
+          npm ci
+          npm run build
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./dist
+          force_orphan: true

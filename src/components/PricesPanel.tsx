@@ -5,8 +5,9 @@ import { extractIsin, isValidIsin, resolveEtfByIsin } from "../lib/prices";
 
 export interface PriceStatus {
   updated: string;
-  ok: { name: string; price: number; ticker: string; exchange: string }[];
+  ok: { name: string; price: number; ticker: string; exchange: string; viaRepo: boolean }[];
   failed: { name: string; error: string }[];
+  repoUpdated?: string;
 }
 
 interface Resolved {
@@ -94,6 +95,7 @@ export default function PricesPanel({
             <span className="text-xs text-slate-400">
               {status.updated} — {status.ok.length} OK
               {status.failed.length > 0 ? `, ${status.failed.length} en échec` : ""}
+              {status.repoUpdated ? ` · source : dépôt (maj ${status.repoUpdated})` : " · source : Yahoo direct"}
             </span>
           )}
         </div>
@@ -171,8 +173,11 @@ export default function PricesPanel({
                   </Button>
                 </div>
                 {ok && (
-                  <span className="text-xs text-emerald-400" title={`${ok.ticker} · ${ok.exchange}`}>
-                    {ok.ticker} · {ok.exchange}
+                  <span
+                    className="text-xs text-emerald-400"
+                    title={ok.viaRepo ? `ISIN ${ok.ticker} · prix du dépôt` : `${ok.ticker} · ${ok.exchange}`}
+                  >
+                    {ok.viaRepo ? `prix du dépôt (${ok.ticker})` : `${ok.ticker} · ${ok.exchange}`}
                   </span>
                 )}
                 {fail && <span className="text-xs text-red-400">{fail.error}</span>}
@@ -184,8 +189,8 @@ export default function PricesPanel({
           )}
         </div>
         <p className="mt-3 text-xs text-slate-500">
-          En édition (✎) : écrivez ou collez un ISIN puis « Reconnaître l'ISIN » — le nom officiel et le cours sont
-          appliqués à l'enregistrement. La saisie manuelle reste possible.
+          Priorité aux prix du dépôt (prices.json, mis à jour par GitHub Action) ; sinon recherche Yahoo directe. En
+          édition (✎) : collez un ISIN puis « Reconnaître l'ISIN ». La saisie manuelle reste toujours possible.
         </p>
       </CardBody>
     </Card>

@@ -58,23 +58,43 @@ export default function App() {
     );
   }
 
+  async function fetchRepoPrices(): Promise<{ updated: string; prices: Record<string, number> } | null> {
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}prices.json?t=${Date.now()}`);
+      if (!res.ok) return null;
+      const j = await res.json();
+      if (j && typeof j === "object" && j.prices) {
+        return { updated: String(j.updated ?? ""), prices: j.prices };
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
   async function refreshPrices() {
     if (refreshing || providers.length === 0) return;
     setRefreshing(true);
     setPriceStatus(null);
+    const repo = await fetchRepoPrices();
     const ok: PriceStatus["ok"] = [];
     const failed: PriceStatus["failed"] = [];
     for (const pr of providers) {
+      const isin = extractIsin(pr.name);
+      if (repo && isin && typeof repo.prices[isin] === "number") {
+        ok.push({ name: pr.name, price: repo.prices[isin], ticker: isin, exchange: "", viaRepo: true });
+        continue;
+      }
       try {
         const q = await fetchEtfPrice(pr.name);
-        ok.push({ name: pr.name, price: Number(q.price.toFixed(2)), ticker: q.ticker, exchange: q.exchange });
+        ok.push({ name: pr.name, price: Number(q.price.toFixed(2)), ticker: q.ticker, exchange: q.exchange, viaRepo: false });
       } catch (e) {
         failed.push({ name: pr.name, error: e instanceof Error ? e.message : "Échec" });
       }
       await sleep(400);
     }
     const updated = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-    setPriceStatus({ updated, ok, failed });
+    setPriceStatus({ updated, ok, failed, repoUpdated: repo?.updated });
     if (ok.length > 0) {
       const isinOf = (name: string) => extractIsin(name);
       setData((d) => ({
