@@ -1,174 +1,174 @@
 {
-  "updated": "2026-11-11T15:31:35.938Z",
+  "updated": "2026-11-11T18:23:19.923Z",
   "prices": {
-    "FR0013412020": 34.7,
-    "FR001400U5Q4": 6.33,
-    "FR0013412038": 40.92,
-    "LU0908500753": 326.5,
-    "LU1781541179": 709.43,
-    "FR0010315770": 60.1
+    "FR0013412020": 34.94,
+    "FR001400U5Q4": 6.36,
+    "FR0013412038": 41.08,
+    "LU0908500753": 327.6,
+    "LU1781541179": 711.81,
+    "FR0010315770": 60.33
   },
   "catalog": {
     "DCAM.PA": {
       "nom": "Amundi PEA Monde (MSCI World)",
       "categorie": "Monde · PEA",
       "isin": "FR001400U5Q4",
-      "prix": 6.33,
+      "prix": 6.36,
       "perf": {
         "m1": 0,
-        "m3": 0.7,
-        "m6": 5,
-        "y1": 16.8
+        "m3": 1,
+        "m6": 5.4,
+        "y1": 17.2
       }
     },
     "CW8.PA": {
       "nom": "Amundi MSCI World",
       "categorie": "Monde",
       "isin": "LU1781541179",
-      "prix": 709.43,
+      "prix": 711.81,
       "perf": {
         "m1": 0,
-        "m3": 0.6,
-        "m6": 5,
-        "y1": 16.6
+        "m3": 1,
+        "m6": 5.3,
+        "y1": 17
       }
     },
     "EUNL.DE": {
       "nom": "iShares Core MSCI World",
       "categorie": "Monde",
       "isin": "IE00B4L5Y983",
-      "prix": 130.46,
+      "prix": 130.96,
       "perf": {
         "m1": 0,
-        "m3": 0.6,
-        "m6": 5,
-        "y1": 16.7
+        "m3": 1,
+        "m6": 5.4,
+        "y1": 17.2
       }
     },
     "WPEA.PA": {
       "nom": "iShares MSCI World Swap PEA",
       "categorie": "Monde · PEA",
-      "prix": 7.15,
+      "prix": 7.18,
       "perf": {
         "m1": 0,
-        "m3": 0.6,
-        "m6": 5,
-        "y1": 16.9
+        "m3": 1,
+        "m6": 5.3,
+        "y1": 17.3
       }
     },
     "PSP5.PA": {
       "nom": "Amundi PEA S&P 500",
       "categorie": "USA · PEA",
       "isin": "FR0010315770",
-      "prix": 60.1,
+      "prix": 60.33,
       "perf": {
         "m1": 0,
-        "m3": 0.4,
-        "m6": 5.9,
-        "y1": 17.2
+        "m3": 0.8,
+        "m6": 6.3,
+        "y1": 17.7
       }
     },
     "ESE.PA": {
       "nom": "BNP Paribas Easy S&P 500",
       "categorie": "USA",
-      "prix": 34.67,
+      "prix": 34.8,
       "perf": {
         "m1": 0,
-        "m3": 0.4,
-        "m6": 6,
-        "y1": 17.2
+        "m3": 0.8,
+        "m6": 6.4,
+        "y1": 17.7
       }
     },
     "PCEU.PA": {
       "nom": "Amundi PEA MSCI Europe",
       "categorie": "Europe · PEA",
       "isin": "FR0013412038",
-      "prix": 40.92,
+      "prix": 41.08,
       "perf": {
         "m1": 0,
-        "m3": 2.2,
-        "m6": 2.3,
-        "y1": 14.4
+        "m3": 2.6,
+        "m6": 2.7,
+        "y1": 14.8
       }
     },
     "MEUD.PA": {
       "nom": "Amundi Core Stoxx Europe 600",
       "categorie": "Europe",
       "isin": "LU0908500753",
-      "prix": 326.5,
+      "prix": 327.6,
       "perf": {
         "m1": 0,
-        "m3": 2.3,
-        "m6": 2.2,
-        "y1": 14.5
+        "m3": 2.6,
+        "m6": 2.6,
+        "y1": 14.9
       }
     },
     "PAEEM.PA": {
       "nom": "Amundi PEA Emergent (MSCI EM)",
       "categorie": "Émergents · PEA",
       "isin": "FR0013412020",
-      "prix": 34.7,
+      "prix": 34.94,
       "perf": {
         "m1": 0,
-        "m3": 2.2,
-        "m6": 0.9,
-        "y1": 21
+        "m3": 2.9,
+        "m6": 1.6,
+        "y1": 21.9
       }
     },
     "AEEM.PA": {
       "nom": "Amundi MSCI Emerging Markets",
       "categorie": "Émergents",
-      "prix": 7.43,
+      "prix": 7.48,
       "perf": {
         "m1": 0,
-        "m3": 2.2,
-        "m6": 0.9,
-        "y1": 20.9
+        "m3": 2.9,
+        "m6": 1.6,
+        "y1": 21.7
       }
     },
     "EQQQ.DE": {
       "nom": "Invesco Nasdaq-100",
       "categorie": "Tech USA",
-      "prix": 621.3,
+      "prix": 626.5,
       "perf": {
         "m1": 0,
-        "m3": -0.3,
-        "m6": 4.2,
-        "y1": 17.1
+        "m3": 0.5,
+        "m6": 5,
+        "y1": 18.1
       }
     },
     "CAC.PA": {
       "nom": "Amundi CAC 40",
       "categorie": "France",
-      "prix": 84.28,
+      "prix": 84.44,
       "perf": {
         "m1": 0,
-        "m3": 4.6,
-        "m6": -1.9,
-        "y1": 4.9
+        "m3": 4.8,
+        "m6": -1.7,
+        "y1": 5.1
       }
     },
     "SPYW.DE": {
       "nom": "SPDR S&P Euro Dividend Aristocrats",
       "categorie": "Dividendes · Europe",
       "isin": "IE00B5M1WJ87",
-      "prix": 31.45,
+      "prix": 31.5,
       "perf": {
         "m1": 0,
-        "m3": 1.9,
-        "m6": 1.9,
-        "y1": 14.7
+        "m3": 2,
+        "m6": 2.1,
+        "y1": 14.8
       }
     },
     "WLD.PA": {
       "nom": "Amundi MSCI World Swap II",
       "categorie": "Monde",
-      "prix": 440,
+      "prix": 441.12,
       "perf": {
         "m1": 0,
-        "m3": 0.7,
-        "m6": 5.1,
-        "y1": 17
+        "m3": 1,
+        "m6": 5.4,
+        "y1": 17.3
       }
     }
   }
