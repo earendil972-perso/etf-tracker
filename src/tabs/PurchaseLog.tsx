@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Card, CardBody, CardHeader, Input, Label, Select } from "../components/ui";
+import { Button, Card, CardBody, CardHeader, Input, Label, MonthInput, Select } from "../components/ui";
 import { fmtEUR, fmtNum, monthLabel, uid } from "../lib/format";
 import type { Purchase, Provider } from "../types";
 
@@ -94,7 +94,7 @@ export default function PurchaseLog({
             </div>
             <div className="flex flex-col gap-1">
               <Label>Mois</Label>
-              <Input type="month" value={date} onChange={(e) => setDate(e.target.value)} />
+              <MonthInput value={date} onChange={setDate} />
             </div>
             <div className="flex flex-col gap-1">
               <Label>Quantité</Label>
@@ -158,11 +158,10 @@ export default function PurchaseLog({
                         </Select>
                       </td>
                       <td className="py-2 pr-3">
-                        <Input
-                          type="month"
+                        <MonthInput
                           value={editing.date}
-                          onChange={(e) => setEditing({ ...editing, date: e.target.value })}
-                          className="w-36 text-xs"
+                          onChange={(v) => setEditing({ ...editing, date: v })}
+                          className="text-xs"
                         />
                       </td>
                       <td className="py-2 pr-3 text-right">

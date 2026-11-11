@@ -7,7 +7,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Button, Card, CardBody, CardHeader, Input, Label, Select } from "../components/ui";
+import { Button, Card, CardBody, CardHeader, Input, Label, MonthInput, Select } from "../components/ui";
 import { fmtEUR, fmtNum, monthLabel, uid } from "../lib/format";
 import type { Benchmark } from "../types";
 
@@ -98,7 +98,7 @@ export default function Benchmarks({
             </div>
             <div className="flex flex-col gap-1">
               <Label>Mois</Label>
-              <Input type="month" value={logMonth} onChange={(e) => setLogMonth(e.target.value)} />
+              <MonthInput value={logMonth} onChange={setLogMonth} />
             </div>
             <div className="flex flex-col gap-1">
               <Label>Prix (€)</Label>

@@ -74,6 +74,57 @@ export function Label({ children }: { children: ReactNode }) {
   return <span className="text-xs font-medium text-slate-400">{children}</span>;
 }
 
+const MONTH_LABELS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+
+function monthInputSupported(): boolean {
+  if (typeof document === "undefined") return false;
+  const input = document.createElement("input");
+  input.type = "month";
+  return input.type === "month";
+}
+
+export function MonthInput({
+  value,
+  onChange,
+  className = "",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  className?: string;
+}) {
+  if (monthInputSupported()) {
+    return <Input type="month" value={value} onChange={(e) => onChange(e.target.value)} className={className} />;
+  }
+  const [y, m] = value.split("-");
+  const currentYear = new Date().getFullYear();
+  const year = Number(y) || currentYear;
+  const month = Number(m) || 1;
+  const years: number[] = [];
+  for (let yy = currentYear - 10; yy <= currentYear + 1; yy++) years.push(yy);
+  return (
+    <div className={`flex gap-1 ${className}`}>
+      <Select
+        value={String(month)}
+        onChange={(e) => onChange(`${year}-${String(e.target.value).padStart(2, "0")}`)}
+        className="w-24"
+      >
+        {MONTH_LABELS.map((lbl, i) => (
+          <option key={i + 1} value={i + 1}>{lbl}</option>
+        ))}
+      </Select>
+      <Select
+        value={String(year)}
+        onChange={(e) => onChange(`${e.target.value}-${String(month).padStart(2, "0")}`)}
+        className="w-20"
+      >
+        {years.map((yy) => (
+          <option key={yy} value={yy}>{yy}</option>
+        ))}
+      </Select>
+    </div>
+  );
+}
+
 export function Badge({ children, tone = "indigo" }: { children: ReactNode; tone?: "indigo" | "red" | "green" | "slate" }) {
   const tones: Record<string, string> = {
     indigo: "bg-indigo-500/15 text-indigo-300 border-indigo-500/40",
