@@ -11,5 +11,6 @@
   { "nom": "Amundi MSCI Emerging Markets", "ticker": "AEEM.PA", "categorie": "Émergents" },
   { "nom": "Invesco Nasdaq-100", "ticker": "EQQQ.DE", "categorie": "Tech USA" },
   { "nom": "Amundi CAC 40", "ticker": "CAC.PA", "categorie": "France" },
+  { "nom": "SPDR S&P Euro Dividend Aristocrats", "ticker": "SPYW.DE", "categorie": "Dividendes · Europe", "isin": "IE00B5M1WJ87" },
   { "nom": "Amundi MSCI World Swap II", "ticker": "WLD.PA", "categorie": "Monde" }
 ]
