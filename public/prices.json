@@ -1,12 +1,12 @@
 {
-  "updated": "2026-11-17T18:25:00.847Z",
+  "updated": "2026-11-18T18:21:37.931Z",
   "prices": {
-    "FR0013412020": 32.72,
+    "FR0013412020": 32.76,
     "FR001400U5Q4": 6.17,
-    "FR0013412038": 40.28,
-    "LU0908500753": 321.45,
-    "LU1781541179": 691.24,
-    "FR0010315770": 58.51
+    "FR0013412038": 39.91,
+    "LU0908500753": 318.5,
+    "LU1781541179": 691.11,
+    "FR0010315770": 58.67
   },
   "catalog": {
     "DCAM.PA": {
@@ -17,31 +17,31 @@
       "perf": {
         "m1": 0,
         "m3": -1.9,
-        "m6": 2.4,
-        "y1": 13.9
+        "m6": 2.3,
+        "y1": 13.8
       }
     },
     "CW8.PA": {
       "nom": "Amundi MSCI World",
       "categorie": "Monde",
       "isin": "LU1781541179",
-      "prix": 691.24,
+      "prix": 691.11,
       "perf": {
         "m1": 0,
         "m3": -2,
-        "m6": 2.3,
-        "y1": 13.7
+        "m6": 2.2,
+        "y1": 13.6
       }
     },
     "EUNL.DE": {
       "nom": "iShares Core MSCI World",
       "categorie": "Monde",
       "isin": "IE00B4L5Y983",
-      "prix": 127.08,
+      "prix": 127.11,
       "perf": {
         "m1": 0,
         "m3": -2,
-        "m6": 2.2,
+        "m6": 2.3,
         "y1": 13.7
       }
     },
@@ -60,59 +60,59 @@
       "nom": "Amundi PEA S&P 500",
       "categorie": "USA · PEA",
       "isin": "FR0010315770",
-      "prix": 58.51,
+      "prix": 58.67,
       "perf": {
         "m1": 0,
-        "m3": -2.3,
-        "m6": 3.1,
-        "y1": 14.1
+        "m3": -2,
+        "m6": 3.4,
+        "y1": 14.5
       }
     },
     "ESE.PA": {
       "nom": "BNP Paribas Easy S&P 500",
       "categorie": "USA",
-      "prix": 33.74,
+      "prix": 33.84,
       "perf": {
         "m1": 0,
-        "m3": -2.3,
-        "m6": 3.1,
-        "y1": 14.1
+        "m3": -2,
+        "m6": 3.4,
+        "y1": 14.4
       }
     },
     "PCEU.PA": {
       "nom": "Amundi PEA MSCI Europe",
       "categorie": "Europe · PEA",
       "isin": "FR0013412038",
-      "prix": 40.28,
+      "prix": 39.91,
       "perf": {
         "m1": 0,
-        "m3": 0.6,
-        "m6": 0.7,
-        "y1": 12.6
+        "m3": -0.3,
+        "m6": -0.3,
+        "y1": 11.5
       }
     },
     "MEUD.PA": {
       "nom": "Amundi Core Stoxx Europe 600",
       "categorie": "Europe",
       "isin": "LU0908500753",
-      "prix": 321.45,
+      "prix": 318.5,
       "perf": {
         "m1": 0,
-        "m3": 0.7,
-        "m6": 0.6,
-        "y1": 12.8
+        "m3": -0.3,
+        "m6": -0.3,
+        "y1": 11.7
       }
     },
     "PAEEM.PA": {
       "nom": "Amundi PEA Emergent (MSCI EM)",
       "categorie": "Émergents · PEA",
       "isin": "FR0013412020",
-      "prix": 32.72,
+      "prix": 32.76,
       "perf": {
         "m1": 0,
-        "m3": -3.7,
-        "m6": -4.8,
-        "y1": 14.1
+        "m3": -3.6,
+        "m6": -4.7,
+        "y1": 14.2
       }
     },
     "AEEM.PA": {
@@ -123,52 +123,52 @@
         "m1": 0,
         "m3": -3.7,
         "m6": -4.9,
-        "y1": 13.9
+        "y1": 14
       }
     },
     "EQQQ.DE": {
       "nom": "Invesco Nasdaq-100",
       "categorie": "Tech USA",
-      "prix": 594.6,
+      "prix": 601.7,
       "perf": {
         "m1": 0,
-        "m3": -4.6,
-        "m6": -0.3,
-        "y1": 12.1
+        "m3": -3.5,
+        "m6": 0.9,
+        "y1": 13.4
       }
     },
     "CAC.PA": {
       "nom": "Amundi CAC 40",
       "categorie": "France",
-      "prix": 83.21,
+      "prix": 82.53,
       "perf": {
         "m1": 0,
-        "m3": 3.2,
-        "m6": -3.2,
-        "y1": 3.5
+        "m3": 2.4,
+        "m6": -4,
+        "y1": 2.7
       }
     },
     "SPYW.DE": {
       "nom": "SPDR S&P Euro Dividend Aristocrats",
       "categorie": "Dividendes · Europe",
       "isin": "IE00B5M1WJ87",
-      "prix": 31.23,
+      "prix": 30.87,
       "perf": {
         "m1": 0,
-        "m3": 1.2,
-        "m6": 1.2,
-        "y1": 13.9
+        "m3": 0,
+        "m6": 0,
+        "y1": 12.5
       }
     },
     "WLD.PA": {
       "nom": "Amundi MSCI World Swap II",
       "categorie": "Monde",
-      "prix": 428.3,
+      "prix": 427.86,
       "perf": {
         "m1": 0,
-        "m3": -2,
-        "m6": 2.3,
-        "y1": 13.9
+        "m3": -2.1,
+        "m6": 2.2,
+        "y1": 13.8
       }
     }
   }
